@@ -152,10 +152,14 @@ class VideoGPT(pl.LightningModule):
             x = shift_dim(x, 1, -1)
 
         loss, _ = self(x, targets, cond)
+        if not self.validation:
+            self.log('train/loss', loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
+        self.validation = True
         loss = self.training_step(batch, batch_idx)
+        self.validation = False
         self.log('val/loss', loss, prog_bar=True)
 
     def configure_optimizers(self):
